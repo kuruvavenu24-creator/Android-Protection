@@ -1,180 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PDF Vault Upload</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Upload + Hacker Notes</title>
 
   <style>
     body {
-      margin: 0;
-      font-family: "Segoe UI", sans-serif;
-      background: linear-gradient(to right, #eef2ff, #f8fafc);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-
-    .card {
-      width: 500px;
-      background: white;
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #667eea, #764ba2);
       text-align: center;
+      padding: 40px;
+      color: white;
     }
 
-    h1 {
-      font-size: 26px;
-      margin-bottom: 5px;
+    .box {
+      background: white;
+      color: black;
+      padding: 30px;
+      width: 550px;
+      margin: auto;
+      border-radius: 18px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
     }
 
-    p {
-      color: gray;
-      margin-bottom: 20px;
+    h2 {
+      margin-bottom: 10px;
     }
 
-    .drop-area {
-      border: 2px dashed #4f46e5;
-      padding: 25px;
-      border-radius: 15px;
-      cursor: pointer;
-      background: #f9f9ff;
-      transition: 0.3s;
-    }
-
-    .drop-area:hover {
-      background: #eef2ff;
-    }
-
-    input {
-      display: none;
+    input[type="file"] {
+      margin-top: 15px;
+      padding: 10px;
     }
 
     button {
       margin-top: 20px;
-      width: 100%;
-      padding: 12px;
+      padding: 12px 25px;
       border: none;
-      background: #4f46e5;
+      background: #667eea;
       color: white;
-      font-size: 16px;
-      border-radius: 12px;
+      font-size: 15px;
+      border-radius: 10px;
       cursor: pointer;
       transition: 0.3s;
     }
 
     button:hover {
-      background: #3730a3;
+      background: #5a67d8;
+      transform: scale(1.05);
     }
 
     iframe {
       margin-top: 20px;
       width: 100%;
-      height: 300px;
+      height: 320px;
       border-radius: 12px;
+      border: 2px solid #ddd;
       display: none;
-      border: 1px solid #ddd;
     }
 
-    .msg {
-      margin-top: 15px;
-      font-weight: bold;
-      color: green;
-    }
-
-    /* Trending Options */
-    .options {
+    #notesBox {
+      display: none;
       margin-top: 25px;
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .opt {
-      flex: 1;
-      padding: 12px;
-      background: #f3f4f6;
+      text-align: left;
+      background: #f9f9f9;
+      padding: 18px;
       border-radius: 12px;
       font-size: 14px;
-      cursor: pointer;
-      transition: 0.2s;
+      border-left: 6px solid #667eea;
     }
 
-    .opt:hover {
-      background: #e0e7ff;
+    #notesBox h3 {
+      margin-top: 0;
+      color: #333;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 10px;
     }
   </style>
 </head>
 
 <body>
-  <div class="card">
-    <h1>📂 PDF Vault</h1>
-    <p>Upload and Store PDFs Locally (Modern Style)</p>
 
-    <!-- Upload Form -->
-    <form id="uploadForm">
-      
-      <!-- Drag Drop Area -->
-      <label class="drop-area">
-        <input type="file" id="pdfUpload" name="pdfFile" accept="application/pdf" required />
-        <h3>📌 Click or Drag PDF Here</h3>
-        <span id="fileName">No file selected</span>
-      </label>
+  <div class="box">
+    <h2>📄 Upload Your PDF File</h2>
+    <p>Select a PDF and preview it instantly</p>
 
-      <!-- Upload Button -->
-      <button type="submit">🚀 Upload PDF</button>
-    </form>
+    <!-- Upload Input -->
+    <input type="file" id="pdfUpload" accept="application/pdf">
 
-    <!-- Preview -->
-    <iframe id="preview"></iframe>
+    <!-- PDF Preview -->
+    <iframe id="pdfPreview"></iframe>
 
-    <!-- Message -->
-    <div class="msg" id="msg"></div>
+    <!-- Notes Button -->
+    <button onclick="showNotes()">
+      HOW HACKERS HACK BY PDF?
+    </button>
 
-    <!-- Trending Options -->
-    <div class="options">
-      <div class="opt">⭐ Recent Uploads</div>
-      <div class="opt">📁 View Files</div>
-      <div class="opt">🌙 Dark Mode</div>
+    <!-- Notes Section -->
+    <div id="notesBox">
+      <h3>🛡 Notes: How Hackers Use PDF Files</h3>
+
+      <ul>
+        <li><b>Fake PDFs:</b> Hackers send PDFs that look like invoices, job offers, or exam results.</li>
+
+        <li><b>Phishing Links:</b> PDFs may contain fake links that steal passwords or banking details.</li>
+
+        <li><b>Social Engineering:</b> Attackers create urgency like “Open immediately!” to trick users.</li>
+
+        <li><b>Malware Disguise:</b> Some files are renamed like <code>document.pdf.exe</code>.</li>
+
+        <li><b>PDF Reader Bugs:</b> Old PDF reader apps may have vulnerabilities hackers exploit.</li>
+
+        <li><b>WhatsApp Forward Scams:</b> Infected PDFs spread through groups and forwarded messages.</li>
+      </ul>
+
+      <p><b>✅ Safety Tip:</b> Never open unknown PDFs and always keep WhatsApp updated.</p>
     </div>
   </div>
 
   <script>
     const pdfUpload = document.getElementById("pdfUpload");
-    const fileName = document.getElementById("fileName");
-    const preview = document.getElementById("preview");
-    const uploadForm = document.getElementById("uploadForm");
-    const msg = document.getElementById("msg");
+    const pdfPreview = document.getElementById("pdfPreview");
 
-    // Show selected file + preview
+    // PDF Preview Feature
     pdfUpload.addEventListener("change", function () {
       const file = this.files[0];
 
-      if (file) {
-        fileName.textContent = file.name;
-
-        const url = URL.createObjectURL(file);
-        preview.style.display = "block";
-        preview.src = url;
+      if (file && file.type === "application/pdf") {
+        const fileURL = URL.createObjectURL(file);
+        pdfPreview.style.display = "block";
+        pdfPreview.src = fileURL;
+      } else {
+        alert("Please upload a valid PDF file!");
+        pdfPreview.style.display = "none";
       }
     });
 
-    // Upload to backend
-    uploadForm.addEventListener("submit", async function (e) {
-      e.preventDefault();
-
-      const formData = new FormData(uploadForm);
-
-      const response = await fetch("/upload", {
-        method: "POST",
-        body: formData
-      });
-
-      const result = await response.text();
-      msg.textContent = result;
-    });
+    // Show Hacker Notes
+    function showNotes() {
+      const notes = document.getElementById("notesBox");
+      notes.style.display = "block";
+    }
   </script>
+
 </body>
 </html>
