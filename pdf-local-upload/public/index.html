@@ -1,52 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF Upload + Hacker Notes</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF Upload + Cyber Safety Notes</title>
 
   <style>
     body {
+      margin: 0;
       font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #667eea, #764ba2);
+      background: radial-gradient(circle at top, #0f172a, #000);
+      color: #00ffcc;
       text-align: center;
       padding: 40px;
-      color: white;
     }
 
     .box {
-      background: white;
-      color: black;
+      background: rgba(0, 0, 0, 0.85);
+      border: 2px solid #00ffcc;
       padding: 30px;
       width: 550px;
       margin: auto;
       border-radius: 18px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+      box-shadow: 0 0 25px #00ffcc;
     }
 
     h2 {
       margin-bottom: 10px;
+      color: #00ffcc;
+      text-shadow: 0 0 8px #00ffcc;
+    }
+
+    p {
+      color: #b6fff2;
     }
 
     input[type="file"] {
       margin-top: 15px;
       padding: 10px;
+      background: black;
+      border: 1px solid #00ffcc;
+      color: white;
+      border-radius: 8px;
     }
 
     button {
       margin-top: 20px;
       padding: 12px 25px;
       border: none;
-      background: #667eea;
-      color: white;
+      background: #00ffcc;
+      color: black;
       font-size: 15px;
+      font-weight: bold;
       border-radius: 10px;
       cursor: pointer;
       transition: 0.3s;
+      box-shadow: 0 0 12px #00ffcc;
     }
 
     button:hover {
-      background: #5a67d8;
+      background: #00ccaa;
       transform: scale(1.05);
     }
 
@@ -55,32 +68,73 @@
       width: 100%;
       height: 320px;
       border-radius: 12px;
-      border: 2px solid #ddd;
+      border: 2px solid #00ffcc;
       display: none;
     }
 
-    #notesBox {
+    /* ===== POPUP MODAL ===== */
+    .modal {
       display: none;
-      margin-top: 25px;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: #050505;
+      border: 2px solid #00ffcc;
+      width: 600px;
+      padding: 25px;
+      border-radius: 15px;
       text-align: left;
-      background: #f9f9f9;
-      padding: 18px;
-      border-radius: 12px;
-      font-size: 14px;
-      border-left: 6px solid #667eea;
+      box-shadow: 0 0 25px #00ffcc;
+      animation: popUp 0.4s ease;
     }
 
-    #notesBox h3 {
+    @keyframes popUp {
+      from {
+        transform: scale(0.7);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .modal-content h3 {
+      color: #00ffcc;
       margin-top: 0;
-      color: #333;
+      text-shadow: 0 0 8px #00ffcc;
     }
 
-    ul {
+    .modal-content ul {
       padding-left: 20px;
+      color: #b6fff2;
     }
 
-    li {
+    .modal-content li {
       margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .close-btn {
+      float: right;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      color: red;
+      text-shadow: 0 0 10px red;
+    }
+
+    .close-btn:hover {
+      color: white;
     }
   </style>
 </head>
@@ -88,8 +142,8 @@
 <body>
 
   <div class="box">
-    <h2>📄 Upload Your PDF File</h2>
-    <p>Select a PDF and preview it instantly</p>
+    <h2>📄 PDF Upload Portal</h2>
+    <p>Upload and preview your PDF instantly</p>
 
     <!-- Upload Input -->
     <input type="file" id="pdfUpload" accept="application/pdf">
@@ -97,36 +151,41 @@
     <!-- PDF Preview -->
     <iframe id="pdfPreview"></iframe>
 
-    <!-- Notes Button -->
-    <button onclick="showNotes()">
+    <!-- Popup Button -->
+    <button onclick="openModal()">
       HOW HACKERS HACK BY PDF?
     </button>
+  </div>
 
-    <!-- Notes Section -->
-    <div id="notesBox">
-      <h3>🛡 Notes: How Hackers Use PDF Files</h3>
+  <!-- ===== MODAL POPUP ===== -->
+  <div class="modal" id="notesModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">✖</span>
+
+      <h3>🛡 Cyber Safety Notes (PDF Awareness)</h3>
 
       <ul>
-        <li><b>Fake PDFs:</b> Hackers send PDFs that look like invoices, job offers, or exam results.</li>
+        <li><b>Fake PDFs:</b> Attackers send PDFs that look like invoices, exam results, or job letters.</li>
 
-        <li><b>Phishing Links:</b> PDFs may contain fake links that steal passwords or banking details.</li>
+        <li><b>Phishing Links:</b> Some PDFs contain fake login/payment links to steal personal data.</li>
 
-        <li><b>Social Engineering:</b> Attackers create urgency like “Open immediately!” to trick users.</li>
+        <li><b>Social Engineering:</b> Messages like “Open urgently!” trick users into clicking quickly.</li>
 
-        <li><b>Malware Disguise:</b> Some files are renamed like <code>document.pdf.exe</code>.</li>
+        <li><b>Malware Disguise:</b> Hackers may rename files like <code>document.pdf.exe</code>.</li>
 
-        <li><b>PDF Reader Bugs:</b> Old PDF reader apps may have vulnerabilities hackers exploit.</li>
+        <li><b>Old Reader Bugs:</b> Outdated PDF apps may have vulnerabilities attackers exploit.</li>
 
-        <li><b>WhatsApp Forward Scams:</b> Infected PDFs spread through groups and forwarded messages.</li>
+        <li><b>WhatsApp Forward Scams:</b> Harmful files spread easily through forwarded group messages.</li>
       </ul>
 
-      <p><b>✅ Safety Tip:</b> Never open unknown PDFs and always keep WhatsApp updated.</p>
+      <p><b>✅ Safety Tip:</b> Only open trusted PDFs and always keep WhatsApp + apps updated.</p>
     </div>
   </div>
 
   <script>
     const pdfUpload = document.getElementById("pdfUpload");
     const pdfPreview = document.getElementById("pdfPreview");
+    const modal = document.getElementById("notesModal");
 
     // PDF Preview Feature
     pdfUpload.addEventListener("change", function () {
@@ -142,11 +201,22 @@
       }
     });
 
-    // Show Hacker Notes
-    function showNotes() {
-      const notes = document.getElementById("notesBox");
-      notes.style.display = "block";
+    // Open Modal
+    function openModal() {
+      modal.style.display = "flex";
     }
+
+    // Close Modal
+    function closeModal() {
+      modal.style.display = "none";
+    }
+
+    // Close modal if clicked outside content
+    window.onclick = function (event) {
+      if (event.target === modal) {
+        closeModal();
+      }
+    };
   </script>
 
 </body>
