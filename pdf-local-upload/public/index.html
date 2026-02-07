@@ -1,274 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PDF Upload Portal + Cyber Notes</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDFShield – Cyber Security Portal</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: radial-gradient(circle at top, #0f172a, #000);
-      color: #00ffcc;
-      text-align: center;
-      padding: 40px;
-    }
+<style>
+body {
+    background: #0f0f0f;
+    color: #00ff99;
+    font-family: 'Courier New', monospace;
+    text-align: center;
+    padding: 40px;
+}
 
-    .box {
-      background: rgba(0, 0, 0, 0.85);
-      border: 2px solid #00ffcc;
-      padding: 30px;
-      width: 600px;
-      margin: auto;
-      border-radius: 18px;
-      box-shadow: 0 0 25px #00ffcc;
-    }
+h1 {
+    text-shadow: 0 0 10px #00ff99;
+}
 
-    h2 {
-      margin-bottom: 10px;
-      color: #00ffcc;
-      text-shadow: 0 0 8px #00ffcc;
-    }
+.container {
+    background: #111;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px #00ff99;
+    max-width: 600px;
+    margin: auto;
+}
 
-    p {
-      color: #b6fff2;
-    }
+input[type="file"] {
+    margin: 20px;
+    padding: 10px;
+    background: black;
+    color: #00ff99;
+    border: 1px solid #00ff99;
+}
 
-    /* ===== Drag & Drop Box ===== */
-    .drop-area {
-      margin-top: 20px;
-      padding: 30px;
-      border: 2px dashed #00ffcc;
-      border-radius: 15px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
+button {
+    background: #00ff99;
+    border: none;
+    padding: 10px 20px;
+    margin: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 5px;
+}
 
-    .drop-area:hover {
-      background: rgba(0, 255, 204, 0.1);
-      transform: scale(1.02);
-    }
+button:hover {
+    background: #00cc77;
+}
 
-    .drop-area.dragover {
-      background: rgba(0, 255, 204, 0.2);
-      border-color: white;
-    }
+#result {
+    margin-top: 20px;
+    font-size: 18px;
+}
 
-    input[type="file"] {
-      display: none;
-    }
+.safe { color: #00ff00; }
+.warning { color: yellow; }
+.danger { color: red; }
 
-    button {
-      margin-top: 20px;
-      padding: 12px 25px;
-      border: none;
-      background: #00ffcc;
-      color: black;
-      font-size: 15px;
-      font-weight: bold;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: 0.3s;
-      box-shadow: 0 0 12px #00ffcc;
-    }
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9);
+}
 
-    button:hover {
-      background: #00ccaa;
-      transform: scale(1.05);
-    }
+.modal-content {
+    background: #111;
+    margin: 10% auto;
+    padding: 20px;
+    width: 80%;
+    border: 2px solid #00ff99;
+    border-radius: 10px;
+    color: #00ff99;
+}
 
-    iframe {
-      margin-top: 20px;
-      width: 100%;
-      height: 320px;
-      border-radius: 12px;
-      border: 2px solid #00ffcc;
-      display: none;
-    }
-
-    /* ===== Popup Modal ===== */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 999;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.85);
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal-content {
-      background: #050505;
-      border: 2px solid #00ffcc;
-      width: 650px;
-      padding: 25px;
-      border-radius: 15px;
-      text-align: left;
-      box-shadow: 0 0 25px #00ffcc;
-      animation: popUp 0.4s ease;
-    }
-
-    @keyframes popUp {
-      from {
-        transform: scale(0.7);
-        opacity: 0;
-      }
-      to {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
-
-    .modal-content h3 {
-      color: #00ffcc;
-      margin-top: 0;
-      text-shadow: 0 0 8px #00ffcc;
-    }
-
-    .modal-content ul {
-      padding-left: 20px;
-      color: #b6fff2;
-    }
-
-    .modal-content li {
-      margin-bottom: 10px;
-      font-size: 14px;
-    }
-
-    .close-btn {
-      float: right;
-      font-size: 20px;
-      font-weight: bold;
-      cursor: pointer;
-      color: red;
-      text-shadow: 0 0 10px red;
-    }
-
-    .close-btn:hover {
-      color: white;
-    }
-
-    #fileName {
-      margin-top: 10px;
-      font-weight: bold;
-      color: white;
-    }
-  </style>
+.close {
+    color: red;
+    float: right;
+    font-size: 25px;
+    cursor: pointer;
+}
+</style>
 </head>
 
 <body>
 
-  <div class="box">
-    <h2>📄 PDF Upload Portal</h2>
-    <p>Drag & Drop or Click to Upload a PDF</p>
+<h1>🛡️ PDFShield – Cyber Security Scanner</h1>
 
-    <!-- Drag & Drop Upload Area -->
-    <div class="drop-area" id="dropArea">
-      <h3>⬇ Drop PDF Here</h3>
-      <p>or click to select file</p>
-      <p id="fileName"></p>
-    </div>
+<div class="container">
 
-    <!-- Hidden File Input -->
-    <input type="file" id="pdfUpload" accept="application/pdf">
+    <input type="file" id="pdfFile" accept=".pdf"><br>
 
-    <!-- PDF Preview -->
-    <iframe id="pdfPreview"></iframe>
+    <button onclick="scanPDF()">Scan PDF</button>
+    <button onclick="openModal()">HOW HACKERS HACK BY PDF?</button>
 
-    <!-- Popup Notes Button -->
-    <button onclick="openModal()">
-      HOW HACKERS HACK BY PDF?
-    </button>
-  </div>
+    <div id="result"></div>
 
-  <!-- ===== Modal Popup Notes ===== -->
-  <div class="modal" id="notesModal">
+</div>
+
+<!-- Modal -->
+<div id="myModal" class="modal">
     <div class="modal-content">
-      <span class="close-btn" onclick="closeModal()">✖</span>
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>📂 How Hackers Hack Using PDF?</h2>
+        <p>
+        1️⃣ Embedded JavaScript inside PDF.<br><br>
+        2️⃣ Exploiting old PDF reader vulnerabilities.<br><br>
+        3️⃣ Hidden malicious links.<br><br>
+        4️⃣ Social engineering (fake invoice / job offer PDF).<br><br>
+        5️⃣ Malware payload hidden inside PDF attachments.<br><br>
 
-      <h3>🛡 Cyber Safety Notes (PDF Awareness)</h3>
-
-      <ul>
-        <li><b>Fake PDFs:</b> Attackers send PDFs that look like invoices, exam results, or job letters.</li>
-        <li><b>Phishing Links:</b> Some PDFs contain fake login/payment links to steal personal data.</li>
-        <li><b>Social Engineering:</b> Messages like “Open urgently!” trick users into clicking quickly.</li>
-        <li><b>Malware Disguise:</b> Hackers may rename files like <code>document.pdf.exe</code>.</li>
-        <li><b>Old Reader Bugs:</b> Outdated PDF apps may have vulnerabilities attackers exploit.</li>
-        <li><b>WhatsApp Forward Scams:</b> Harmful files spread easily through forwarded group messages.</li>
-      </ul>
-
-      <p><b>✅ Safety Tip:</b> Only open trusted PDFs and keep apps updated.</p>
+        🛡️ Prevention Tips:<br>
+        ✔ Always update your PDF reader.<br>
+        ✔ Never open unknown PDF files.<br>
+        ✔ Disable JavaScript in PDF viewer.<br>
+        ✔ Use antivirus scanning.
+        </p>
     </div>
-  </div>
+</div>
 
-  <script>
-    const dropArea = document.getElementById("dropArea");
-    const pdfUpload = document.getElementById("pdfUpload");
-    const pdfPreview = document.getElementById("pdfPreview");
-    const fileNameText = document.getElementById("fileName");
-    const modal = document.getElementById("notesModal");
+<script>
 
-    /* ===== Click Upload ===== */
-    dropArea.addEventListener("click", () => {
-      pdfUpload.click();
-    });
+function scanPDF() {
+    const fileInput = document.getElementById("pdfFile");
+    const result = document.getElementById("result");
 
-    /* ===== File Select Preview ===== */
-    pdfUpload.addEventListener("change", function () {
-      handleFile(this.files[0]);
-    });
-
-    /* ===== Drag Over Effect ===== */
-    dropArea.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      dropArea.classList.add("dragover");
-    });
-
-    dropArea.addEventListener("dragleave", () => {
-      dropArea.classList.remove("dragover");
-    });
-
-    /* ===== Drop File ===== */
-    dropArea.addEventListener("drop", (e) => {
-      e.preventDefault();
-      dropArea.classList.remove("dragover");
-
-      const file = e.dataTransfer.files[0];
-      handleFile(file);
-    });
-
-    /* ===== Handle PDF File ===== */
-    function handleFile(file) {
-      if (file && file.type === "application/pdf") {
-        fileNameText.textContent = "Selected: " + file.name;
-
-        const fileURL = URL.createObjectURL(file);
-        pdfPreview.style.display = "block";
-        pdfPreview.src = fileURL;
-      } else {
-        alert("Please upload only a valid PDF file!");
-      }
+    if (!fileInput.files.length) {
+        result.innerHTML = "⚠ Please upload a PDF file.";
+        return;
     }
 
-    /* ===== Modal Open/Close ===== */
-    function openModal() {
-      modal.style.display = "flex";
-    }
+    const file = fileInput.files[0];
 
-    function closeModal() {
-      modal.style.display = "none";
-    }
+    result.innerHTML = "🔍 Scanning PDF...";
+    
+    setTimeout(() => {
 
-    window.onclick = function (event) {
-      if (event.target === modal) {
-        closeModal();
-      }
-    };
-  </script>
+        let riskScore = 0;
+
+        // Check file size
+        if (file.size > 5 * 1024 * 1024) {
+            riskScore += 1;
+        }
+
+        // Suspicious file name patterns
+        const suspiciousNames = ["invoice", "urgent", "password", "bank", "crypto"];
+        suspiciousNames.forEach(word => {
+            if (file.name.toLowerCase().includes(word)) {
+                riskScore += 1;
+            }
+        });
+
+        if (riskScore === 0) {
+            result.innerHTML = "<span class='safe'>🟢 SAFE FILE – No immediate threats detected.</span>";
+        } 
+        else if (riskScore === 1) {
+            result.innerHTML = "<span class='warning'>🟡 SUSPICIOUS FILE – Be cautious.</span>";
+        } 
+        else {
+            result.innerHTML = "<span class='danger'>🔴 HIGH RISK FILE – Possible malicious content!</span>";
+        }
+
+    }, 2000);
+}
+
+function openModal() {
+    document.getElementById("myModal").style.display = "block";
+}
+
+function closeModal() {
+    document.getElementById("myModal").style.display = "none";
+}
+
+</script>
 
 </body>
 </html>
