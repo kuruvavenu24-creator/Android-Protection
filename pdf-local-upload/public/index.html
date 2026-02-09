@@ -3,97 +3,117 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PDFShield Pro – Cyber Scanner</title>
+<title>PDFShield – Cyber Awareness Portal</title>
 
 <style>
 body {
-    background: #0a0a0a;
-    color: #00ff99;
+    margin: 0;
     font-family: 'Courier New', monospace;
+    background: linear-gradient(135deg, #000000, #0f2027);
+    color: #00ffcc;
     text-align: center;
-    padding: 40px;
-    overflow-x: hidden;
+    padding: 30px;
 }
 
-/* Glitch Effect */
+/* Glitch Title */
 .glitch {
-    font-size: 32px;
-    position: relative;
-    color: #00ff99;
-    animation: flicker 2s infinite;
+    font-size: 34px;
+    margin-bottom: 20px;
+    animation: glow 1.5s infinite alternate;
 }
 
-@keyframes flicker {
-    0% { text-shadow: 2px 2px red; }
-    20% { text-shadow: -2px -2px cyan; }
-    40% { text-shadow: 2px -2px lime; }
-    60% { text-shadow: -2px 2px red; }
-    80% { text-shadow: 2px 2px cyan; }
-    100% { text-shadow: 0 0 10px #00ff99; }
+@keyframes glow {
+    from { text-shadow: 0 0 5px #00ffcc; }
+    to { text-shadow: 0 0 20px #00ffcc, 0 0 40px #00ffcc; }
 }
 
+/* Main Box */
 .container {
+    max-width: 700px;
+    margin: auto;
     background: #111;
     padding: 30px;
     border-radius: 15px;
-    box-shadow: 0 0 25px #00ff99;
-    max-width: 650px;
-    margin: auto;
+    box-shadow: 0 0 25px #00ffcc;
+}
+
+/* Drag Drop */
+.drop-zone {
+    border: 2px dashed #00ffcc;
+    padding: 40px;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.drop-zone:hover {
+    background: rgba(0,255,204,0.1);
 }
 
 input[type="file"] {
-    margin: 20px;
-    padding: 10px;
-    background: black;
-    color: #00ff99;
-    border: 1px solid #00ff99;
+    display: none;
 }
 
-button {
-    background: #00ff99;
-    border: none;
-    padding: 10px 20px;
-    margin: 10px;
-    cursor: pointer;
+#fileName {
+    margin-top: 10px;
     font-weight: bold;
-    border-radius: 5px;
+}
+
+/* Buttons */
+button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    background: #00ffcc;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
 button:hover {
-    background: #00cc77;
+    background: #00ccaa;
 }
 
+/* Terminal */
 #terminal {
     background: black;
-    color: #00ff99;
-    padding: 15px;
+    color: #00ffcc;
+    height: 120px;
     margin-top: 20px;
-    height: 150px;
+    padding: 10px;
     overflow-y: auto;
     text-align: left;
-    font-size: 14px;
-    border: 1px solid #00ff99;
+    border: 1px solid #00ffcc;
 }
 
+/* Risk Meter */
 .progress-container {
-    width: 100%;
     background: #222;
     border-radius: 10px;
-    margin-top: 20px;
+    margin-top: 15px;
 }
 
 .progress-bar {
     height: 20px;
     width: 0%;
-    background: #00ff99;
     border-radius: 10px;
-    transition: width 0.3s;
+    transition: width 0.5s;
 }
 
-.safe { color: #00ff00; }
-.warning { color: yellow; }
-.danger { color: red; }
+.safe { background: lime; }
+.warning { background: orange; }
+.danger { background: red; }
 
+/* Prevention Tips */
+.tips {
+    margin-top: 20px;
+    text-align: left;
+    background: #0a0a0a;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+/* Modal */
 .modal {
     display: none;
     position: fixed;
@@ -104,130 +124,153 @@ button:hover {
 
 .modal-content {
     background: #111;
-    margin: 10% auto;
+    margin: 8% auto;
     padding: 20px;
     width: 80%;
-    border: 2px solid #00ff99;
+    border: 2px solid #00ffcc;
     border-radius: 10px;
+    text-align: left;
 }
 
 .close {
-    color: red;
     float: right;
-    font-size: 25px;
+    font-size: 24px;
     cursor: pointer;
+    color: red;
 }
 </style>
 </head>
 
 <body>
 
-<h1 class="glitch">🛡️ PDFShield PRO Scanner</h1>
+<h1 class="glitch">🛡️ PDFShield – Cyber Awareness Portal</h1>
 
 <div class="container">
 
-    <input type="file" id="pdfFile" accept=".pdf"><br>
+    <!-- Upload -->
+    <div class="drop-zone" onclick="document.getElementById('pdfInput').click()">
+        📂 Drag & Drop PDF or Click to Upload
+        <input type="file" id="pdfInput" accept=".pdf">
+        <div id="fileName"></div>
+    </div>
 
-    <button onclick="scanPDF()">Start AI Scan</button>
+    <button onclick="scanPDF()">Start Security Scan</button>
     <button onclick="openModal()">HOW HACKERS HACK BY PDF?</button>
 
+    <!-- Terminal -->
     <div id="terminal"></div>
 
+    <!-- Risk Meter -->
     <div class="progress-container">
         <div id="progressBar" class="progress-bar"></div>
     </div>
 
-    <h3 id="result"></h3>
+    <h3 id="riskResult"></h3>
+
+    <!-- Prevention Tips -->
+    <div class="tips">
+        <h3>🛡 Prevention Tips</h3>
+        ✔ Keep PDF readers updated<br>
+        ✔ Disable JavaScript in PDF viewer<br>
+        ✔ Never open unknown attachments<br>
+        ✔ Scan files before opening<br>
+        ✔ Verify sender identity
+    </div>
 
 </div>
 
-<!-- Modal -->
-<div id="myModal" class="modal">
+<!-- Attack Explanation Modal -->
+<div id="attackModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal()">&times;</span>
         <h2>📂 How Hackers Hack Using PDF?</h2>
-        <p>
-        1️⃣ Embedded JavaScript inside PDF.<br><br>
-        2️⃣ Exploiting outdated PDF readers.<br><br>
-        3️⃣ Fake invoice/job offer PDFs.<br><br>
-        4️⃣ Hidden phishing links.<br><br>
-        5️⃣ Malware payload attachments.<br><br>
-
-        🛡 Prevention:<br>
-        ✔ Keep PDF readers updated.<br>
-        ✔ Never open unknown files.<br>
-        ✔ Scan files before opening.<br>
-        ✔ Disable JavaScript in PDF viewer.
-        </p>
+        1️⃣ Embedded JavaScript payloads<br><br>
+        2️⃣ Exploiting PDF reader vulnerabilities<br><br>
+        3️⃣ Fake invoice/job offer PDFs<br><br>
+        4️⃣ Hidden phishing links inside document<br><br>
+        5️⃣ Malware attachments disguised as PDF<br><br>
+        ⚠ Always verify before opening unknown files.
     </div>
 </div>
 
 <script>
 
+const pdfInput = document.getElementById("pdfInput");
+const fileName = document.getElementById("fileName");
+
+pdfInput.addEventListener("change", function () {
+    if (this.files.length > 0) {
+        fileName.innerText = "Selected: " + this.files[0].name;
+    }
+});
+
 function scanPDF() {
-    const fileInput = document.getElementById("pdfFile");
+    const file = pdfInput.files[0];
     const terminal = document.getElementById("terminal");
     const progressBar = document.getElementById("progressBar");
-    const result = document.getElementById("result");
+    const riskResult = document.getElementById("riskResult");
 
-    if (!fileInput.files.length) {
-        result.innerHTML = "⚠ Please upload a PDF file.";
+    if (!file) {
+        alert("Please upload a PDF first!");
         return;
     }
 
-    const file = fileInput.files[0];
     terminal.innerHTML = "";
     progressBar.style.width = "0%";
-    result.innerHTML = "";
+    riskResult.innerHTML = "";
 
     let progress = 0;
 
-    const scanInterval = setInterval(() => {
+    const scan = setInterval(() => {
         progress += 10;
-        progressBar.style.width = progress + "%";
-        terminal.innerHTML += "Scanning sector " + progress/10 + "... OK<br>";
+        terminal.innerHTML += "Scanning block " + progress/10 + "... OK<br>";
         terminal.scrollTop = terminal.scrollHeight;
 
         if (progress >= 100) {
-            clearInterval(scanInterval);
-            analyzeFile(file);
+            clearInterval(scan);
+            analyze(file);
         }
-
     }, 300);
 }
 
-function analyzeFile(file) {
+function analyze(file) {
 
-    const result = document.getElementById("result");
+    const progressBar = document.getElementById("progressBar");
+    const riskResult = document.getElementById("riskResult");
 
-    let riskScore = 0;
+    let risk = 5;
 
-    if (file.size > 5 * 1024 * 1024) riskScore += 20;
+    if (file.size > 5 * 1024 * 1024) risk += 25;
 
-    const suspiciousWords = ["invoice", "urgent", "password", "bank", "crypto"];
-    suspiciousWords.forEach(word => {
+    const suspicious = ["invoice", "urgent", "bank", "crypto", "password"];
+    suspicious.forEach(word => {
         if (file.name.toLowerCase().includes(word)) {
-            riskScore += 15;
+            risk += 15;
         }
     });
 
-    if (riskScore === 0) {
-        result.innerHTML = "<span class='safe'>🟢 SAFE – Risk Level: 5%</span>";
+    progressBar.style.width = risk + "%";
+
+    if (risk < 30) {
+        progressBar.className = "progress-bar safe";
+        riskResult.innerHTML = "🟢 SAFE – Risk Score: " + risk + "%";
     }
-    else if (riskScore < 40) {
-        result.innerHTML = "<span class='warning'>🟡 SUSPICIOUS – Risk Level: " + riskScore + "%</span>";
+    else if (risk < 60) {
+        progressBar.className = "progress-bar warning";
+        riskResult.innerHTML = "🟡 SUSPICIOUS – Risk Score: " + risk + "%";
     }
     else {
-        result.innerHTML = "<span class='danger'>🔴 HIGH RISK – Risk Level: " + riskScore + "%</span>";
+        progressBar.className = "progress-bar danger";
+        riskResult.innerHTML = "🔴 HIGH RISK – Risk Score: " + risk + "%";
     }
 }
 
 function openModal() {
-    document.getElementById("myModal").style.display = "block";
+    document.getElementById("attackModal").style.display = "block";
 }
 
 function closeModal() {
-    document.getElementById("myModal").style.display = "none";
+    document.getElementById("attackModal").style.display = "none";
 }
 
 </script>
