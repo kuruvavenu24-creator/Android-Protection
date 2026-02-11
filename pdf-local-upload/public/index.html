@@ -3,246 +3,271 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PDFShield Pro</title>
+<title>PDFShield X – Dark Hack Mode</title>
 
 <style>
 body {
     margin: 0;
     font-family: 'Courier New', monospace;
-    background: linear-gradient(135deg,#000,#0f2027);
-    color: #00ffcc;
-    text-align: center;
-    padding: 30px;
+    background: black;
+    color: #00ff99;
+    overflow-x: hidden;
 }
 
-.glitch {
-    font-size: 32px;
-    animation: glow 1.5s infinite alternate;
+/* Matrix Canvas */
+#matrix {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
 }
 
-@keyframes glow {
-    from { text-shadow: 0 0 5px #00ffcc; }
-    to { text-shadow: 0 0 20px #00ffcc,0 0 40px #00ffcc; }
-}
-
+/* Main Container */
 .container {
-    max-width: 750px;
+    max-width: 900px;
     margin: auto;
-    background: #111;
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0 0 25px #00ffcc;
+    padding: 30px;
+    text-align: center;
 }
 
-.drop-zone {
-    border: 2px dashed #00ffcc;
-    padding: 35px;
+.glow {
+    font-size: 32px;
+    text-shadow: 0 0 10px #00ff99, 0 0 20px #00ff99;
+}
+
+.box {
+    background: rgba(0,0,0,0.8);
+    border: 1px solid #00ff99;
     border-radius: 15px;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 0 0 20px #00ff99;
+}
+
+/* Upload */
+input[type="file"] { display: none; }
+
+.drop {
+    border: 2px dashed #00ff99;
+    padding: 30px;
     cursor: pointer;
 }
 
-input[type="file"] { display: none; }
-
 button {
-    margin-top: 12px;
+    margin: 10px;
     padding: 10px 20px;
-    background: #00ffcc;
+    background: #00ff99;
     border: none;
-    border-radius: 6px;
+    border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
 }
 
-button:hover { background: #00ccaa; }
-
+/* Terminal */
 #terminal {
     background: black;
     height: 120px;
-    margin-top: 15px;
-    padding: 10px;
     overflow-y: auto;
+    padding: 10px;
+    border: 1px solid #00ff99;
     text-align: left;
-    border: 1px solid #00ffcc;
 }
 
-.progress-container {
-    background: #222;
-    border-radius: 10px;
-    margin-top: 15px;
+/* Circular Risk Meter */
+.circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: conic-gradient(lime 0%, #111 0%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto;
+    font-size: 24px;
+    font-weight: bold;
 }
 
-.progress-bar {
-    height: 20px;
-    width: 0%;
-    border-radius: 10px;
-    transition: width 0.5s;
+/* Stats */
+.stats {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
 }
 
-.safe { background: lime; }
-.warning { background: orange; }
-.danger { background: red; }
-
-/* History Section */
-.history {
-    margin-top: 25px;
-    text-align: left;
-    background: #0a0a0a;
+.stat-box {
+    background: #111;
     padding: 15px;
     border-radius: 10px;
-    max-height: 200px;
+    width: 30%;
+    box-shadow: 0 0 15px #00ff99;
+}
+
+/* History */
+.history {
+    max-height: 150px;
     overflow-y: auto;
-}
-
-.history-item {
-    border-bottom: 1px solid #333;
-    padding: 5px 0;
-    font-size: 14px;
-}
-
-.clear-btn {
-    background: red;
-    color: white;
+    text-align: left;
 }
 </style>
 </head>
 
 <body>
 
-<h1 class="glitch">🛡 PDFShield Pro</h1>
+<canvas id="matrix"></canvas>
 
 <div class="container">
 
-    <div class="drop-zone" onclick="document.getElementById('pdfInput').click()">
-        📂 Click to Upload PDF
-        <input type="file" id="pdfInput" accept=".pdf">
+<h1 class="glow">🛡 PDFShield X – Dark Hack Mode</h1>
+
+<div class="box">
+    <div class="drop" onclick="document.getElementById('fileInput').click()">
+        📂 Upload PDF
+        <input type="file" id="fileInput" accept=".pdf">
         <div id="fileName"></div>
     </div>
 
     <button onclick="scanPDF()">Start Scan</button>
-    <button class="clear-btn" onclick="clearHistory()">Clear History</button>
+</div>
 
+<div class="box">
     <div id="terminal"></div>
+</div>
 
-    <div class="progress-container">
-        <div id="progressBar" class="progress-bar"></div>
+<div class="box">
+    <div class="circle" id="riskCircle">0%</div>
+    <h3 id="riskText"></h3>
+</div>
+
+<div class="box stats">
+    <div class="stat-box">
+        Total Scans<br>
+        <h2 id="totalScans">0</h2>
     </div>
-
-    <h3 id="riskResult"></h3>
-
-    <div class="history">
-        <h3>📜 Scan History</h3>
-        <div id="historyList"></div>
+    <div class="stat-box">
+        High Risk<br>
+        <h2 id="highRisk">0</h2>
     </div>
+    <div class="stat-box">
+        Safe Files<br>
+        <h2 id="safeFiles">0</h2>
+    </div>
+</div>
+
+<div class="box">
+    <h3>📜 Scan History</h3>
+    <div id="history" class="history"></div>
+</div>
 
 </div>
 
 <script>
-const pdfInput = document.getElementById("pdfInput");
+const fileInput = document.getElementById("fileInput");
 const fileName = document.getElementById("fileName");
-const historyList = document.getElementById("historyList");
+const terminal = document.getElementById("terminal");
+const riskCircle = document.getElementById("riskCircle");
+const riskText = document.getElementById("riskText");
 
-pdfInput.addEventListener("change", function () {
-    if (this.files.length > 0) {
+let total = 0, high = 0, safe = 0;
+
+fileInput.addEventListener("change", function(){
+    if(this.files.length > 0)
         fileName.innerText = "Selected: " + this.files[0].name;
-    }
 });
 
 function scanPDF() {
-    const file = pdfInput.files[0];
-    if (!file) return alert("Upload PDF first!");
 
-    const terminal = document.getElementById("terminal");
-    const progressBar = document.getElementById("progressBar");
-    const riskResult = document.getElementById("riskResult");
+    const file = fileInput.files[0];
+    if(!file) return alert("Upload PDF first!");
 
     terminal.innerHTML = "";
-    progressBar.style.width = "0%";
-    riskResult.innerHTML = "";
-
     let progress = 0;
 
-    const scan = setInterval(() => {
+    const scan = setInterval(()=>{
         progress += 10;
-        terminal.innerHTML += "Scanning block " + progress/10 + "... OK<br>";
+        terminal.innerHTML += "Scanning sector "+progress/10+"... OK<br>";
         terminal.scrollTop = terminal.scrollHeight;
 
-        if (progress >= 100) {
+        if(progress >= 100){
             clearInterval(scan);
             analyze(file);
         }
-    }, 250);
+    },200);
 }
 
-function analyze(file) {
-
-    const progressBar = document.getElementById("progressBar");
-    const riskResult = document.getElementById("riskResult");
+function analyze(file){
 
     let risk = 5;
 
-    if (file.size > 5 * 1024 * 1024) risk += 25;
+    if(file.size > 5*1024*1024) risk += 25;
 
-    const suspicious = ["invoice","urgent","bank","crypto","password"];
-    suspicious.forEach(word => {
-        if (file.name.toLowerCase().includes(word)) {
-            risk += 15;
-        }
+    ["invoice","urgent","crypto","bank","password"].forEach(word=>{
+        if(file.name.toLowerCase().includes(word)) risk += 15;
     });
 
-    let status = "SAFE";
+    riskCircle.style.background =
+        "conic-gradient("+(risk<60?"lime":risk<80?"orange":"red")+" "+risk+"%, #111 0%)";
 
-    if (risk < 30) {
-        progressBar.className = "progress-bar safe";
-        status = "SAFE";
-    } else if (risk < 60) {
-        progressBar.className = "progress-bar warning";
-        status = "SUSPICIOUS";
-    } else {
-        progressBar.className = "progress-bar danger";
-        status = "HIGH RISK";
-    }
+    riskCircle.innerText = risk+"%";
 
-    progressBar.style.width = risk + "%";
-    riskResult.innerHTML = status + " – Risk Score: " + risk + "%";
+    let status="SAFE";
+    if(risk>=60){ status="HIGH RISK"; high++; }
+    else safe++;
 
-    saveHistory(file.name, risk, status);
+    riskText.innerText = status;
+
+    total++;
+
+    document.getElementById("totalScans").innerText = total;
+    document.getElementById("highRisk").innerText = high;
+    document.getElementById("safeFiles").innerText = safe;
+
+    saveHistory(file.name,risk,status);
 }
 
-function saveHistory(name, risk, status) {
-
-    const time = new Date().toLocaleString();
-
-    const record = { name, risk, status, time };
-
-    let history = JSON.parse(localStorage.getItem("scanHistory")) || [];
-    history.unshift(record);
-
-    localStorage.setItem("scanHistory", JSON.stringify(history));
-
+function saveHistory(name,risk,status){
+    let history = JSON.parse(localStorage.getItem("history"))||[];
+    history.unshift({name,risk,status,time:new Date().toLocaleString()});
+    localStorage.setItem("history",JSON.stringify(history));
     loadHistory();
 }
 
-function loadHistory() {
-
-    let history = JSON.parse(localStorage.getItem("scanHistory")) || [];
-
-    historyList.innerHTML = "";
-
-    history.forEach(item => {
-        historyList.innerHTML += `
-        <div class="history-item">
-        📂 ${item.name} | ${item.status} (${item.risk}%)<br>
-        🕒 ${item.time}
-        </div>`;
+function loadHistory(){
+    let history = JSON.parse(localStorage.getItem("history"))||[];
+    const container=document.getElementById("history");
+    container.innerHTML="";
+    history.forEach(h=>{
+        container.innerHTML+=`📂 ${h.name} | ${h.status} (${h.risk}%)<br>🕒 ${h.time}<hr>`;
     });
 }
-
-function clearHistory() {
-    localStorage.removeItem("scanHistory");
-    loadHistory();
-}
-
 loadHistory();
+
+/* Matrix Animation */
+const canvas=document.getElementById("matrix");
+const ctx=canvas.getContext("2d");
+canvas.height=window.innerHeight;
+canvas.width=window.innerWidth;
+
+const letters="01";
+const fontSize=14;
+const columns=canvas.width/fontSize;
+const drops=[];
+for(let x=0;x<columns;x++) drops[x]=1;
+
+function draw(){
+    ctx.fillStyle="rgba(0,0,0,0.05)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle="#00ff99";
+    ctx.font=fontSize+"px monospace";
+
+    for(let i=0;i<drops.length;i++){
+        const text=letters[Math.floor(Math.random()*letters.length)];
+        ctx.fillText(text,i*fontSize,drops[i]*fontSize);
+        if(drops[i]*fontSize>canvas.height && Math.random()>0.975)
+            drops[i]=0;
+        drops[i]++;
+    }
+}
+setInterval(draw,33);
 </script>
 
 </body>
