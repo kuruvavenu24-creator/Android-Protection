@@ -1,43 +1,59 @@
-const express = require("express");
-const multer = require("multer");
-const path = require("path");
+import express from "express";
+import multer from "multer";
+import fetch from "node-fetch";
+import dotenv from "dotenv";
+import fs from "fs";
+import crypto from "crypto";
+import path from "path";
+
+dotenv.config();
 
 const app = express();
+const upload = multer({ dest: "uploads/" });
 
-// Serve frontend
 app.use(express.static("public"));
 
-// Upload folder access
-app.use("/uploads", express.static("uploads"));
+app.post("/scan", upload.single("file"), async (req, res) => {
 
-// Storage configuration
-const storage = multer.diskStorage({
-  destination: "uploads/",
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  }
+    try {
+        const filePath = req.file.path;
+
+        // Create SHA256 hash
+        const fileBuffer = fs.readFileSync(filePath);
+        const hash = crypto.createHash("sha256").update(fileBuffer).digest("hex");
+
+        // Query VirusTotal
+        const response = await fetch(
+            `https://www.virustotal.com/api/v3/files/${hash}`,
+            {
+                headers: {
+                    "x-apikey": process.env.VT_API_KEY
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        fs.unlinkSync(filePath); // delete uploaded file
+
+        if (data.data) {
+            const stats = data.data.attributes.last_analysis_stats;
+
+            res.json({
+                malicious: stats.malicious,
+                suspicious: stats.suspicious,
+                harmless: stats.harmless,
+                undetected: stats.undetected
+            });
+        } else {
+            res.json({ message: "File not found in VirusTotal database." });
+        }
+
+    } catch (error) {
+        res.status(500).json({ error: "Error scanning file." });
+    }
 });
 
-// Only PDF allowed
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype === "application/pdf") {
-    cb(null, true);
-  } else {
-    cb("Only PDF files allowed!", false);
-  }
-};
-
-const upload = multer({ storage, fileFilter });
-
-// Upload Route
-app.post("/upload", upload.single("pdfFile"), (req, res) => {
-  res.json({
-    message: "✅ PDF Uploaded Successfully!",
-    file: req.file.filename
-  });
-});
-
-// Server Start
 app.listen(3000, () => {
-  console.log("🔥 Server running at: http://localhost:3000");
+    console.log("🛡 PDFShield running at http://localhost:3000");
 });

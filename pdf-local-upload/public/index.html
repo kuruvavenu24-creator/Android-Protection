@@ -1,273 +1,71 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PDFShield X – Dark Hack Mode</title>
-
+<title>PDFShield VT</title>
 <style>
 body {
-    margin: 0;
-    font-family: 'Courier New', monospace;
-    background: black;
-    color: #00ff99;
-    overflow-x: hidden;
+    background:black;
+    color:#00ff99;
+    font-family:monospace;
+    text-align:center;
+    padding:40px;
 }
-
-/* Matrix Canvas */
-#matrix {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: -1;
-}
-
-/* Main Container */
-.container {
-    max-width: 900px;
-    margin: auto;
-    padding: 30px;
-    text-align: center;
-}
-
-.glow {
-    font-size: 32px;
-    text-shadow: 0 0 10px #00ff99, 0 0 20px #00ff99;
-}
-
 .box {
-    background: rgba(0,0,0,0.8);
-    border: 1px solid #00ff99;
-    border-radius: 15px;
-    padding: 20px;
-    margin-top: 20px;
-    box-shadow: 0 0 20px #00ff99;
+    border:1px solid #00ff99;
+    padding:20px;
+    border-radius:10px;
 }
-
-/* Upload */
-input[type="file"] { display: none; }
-
-.drop {
-    border: 2px dashed #00ff99;
-    padding: 30px;
-    cursor: pointer;
-}
-
 button {
-    margin: 10px;
-    padding: 10px 20px;
-    background: #00ff99;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
+    padding:10px 20px;
+    background:#00ff99;
+    border:none;
+    cursor:pointer;
 }
-
-/* Terminal */
-#terminal {
-    background: black;
-    height: 120px;
-    overflow-y: auto;
-    padding: 10px;
-    border: 1px solid #00ff99;
-    text-align: left;
-}
-
-/* Circular Risk Meter */
-.circle {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    background: conic-gradient(lime 0%, #111 0%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 20px auto;
-    font-size: 24px;
-    font-weight: bold;
-}
-
-/* Stats */
-.stats {
-    display: flex;
-    justify-content: space-around;
-    margin-top: 20px;
-}
-
-.stat-box {
-    background: #111;
-    padding: 15px;
-    border-radius: 10px;
-    width: 30%;
-    box-shadow: 0 0 15px #00ff99;
-}
-
-/* History */
-.history {
-    max-height: 150px;
-    overflow-y: auto;
-    text-align: left;
+.result {
+    margin-top:20px;
+    font-size:18px;
 }
 </style>
 </head>
-
 <body>
 
-<canvas id="matrix"></canvas>
-
-<div class="container">
-
-<h1 class="glow">🛡 PDFShield X – Dark Hack Mode</h1>
+<h1>🛡 PDFShield + VirusTotal</h1>
 
 <div class="box">
-    <div class="drop" onclick="document.getElementById('fileInput').click()">
-        📂 Upload PDF
-        <input type="file" id="fileInput" accept=".pdf">
-        <div id="fileName"></div>
-    </div>
-
-    <button onclick="scanPDF()">Start Scan</button>
-</div>
-
-<div class="box">
-    <div id="terminal"></div>
-</div>
-
-<div class="box">
-    <div class="circle" id="riskCircle">0%</div>
-    <h3 id="riskText"></h3>
-</div>
-
-<div class="box stats">
-    <div class="stat-box">
-        Total Scans<br>
-        <h2 id="totalScans">0</h2>
-    </div>
-    <div class="stat-box">
-        High Risk<br>
-        <h2 id="highRisk">0</h2>
-    </div>
-    <div class="stat-box">
-        Safe Files<br>
-        <h2 id="safeFiles">0</h2>
-    </div>
-</div>
-
-<div class="box">
-    <h3>📜 Scan History</h3>
-    <div id="history" class="history"></div>
-</div>
-
+<input type="file" id="fileInput" accept=".pdf"><br><br>
+<button onclick="scan()">Scan with VirusTotal</button>
+<div class="result" id="result"></div>
 </div>
 
 <script>
-const fileInput = document.getElementById("fileInput");
-const fileName = document.getElementById("fileName");
-const terminal = document.getElementById("terminal");
-const riskCircle = document.getElementById("riskCircle");
-const riskText = document.getElementById("riskText");
+async function scan(){
 
-let total = 0, high = 0, safe = 0;
+    const file = document.getElementById("fileInput").files[0];
+    if(!file) return alert("Upload PDF first");
 
-fileInput.addEventListener("change", function(){
-    if(this.files.length > 0)
-        fileName.innerText = "Selected: " + this.files[0].name;
-});
+    const formData = new FormData();
+    formData.append("file", file);
 
-function scanPDF() {
+    document.getElementById("result").innerText="Scanning with VirusTotal...";
 
-    const file = fileInput.files[0];
-    if(!file) return alert("Upload PDF first!");
-
-    terminal.innerHTML = "";
-    let progress = 0;
-
-    const scan = setInterval(()=>{
-        progress += 10;
-        terminal.innerHTML += "Scanning sector "+progress/10+"... OK<br>";
-        terminal.scrollTop = terminal.scrollHeight;
-
-        if(progress >= 100){
-            clearInterval(scan);
-            analyze(file);
-        }
-    },200);
-}
-
-function analyze(file){
-
-    let risk = 5;
-
-    if(file.size > 5*1024*1024) risk += 25;
-
-    ["invoice","urgent","crypto","bank","password"].forEach(word=>{
-        if(file.name.toLowerCase().includes(word)) risk += 15;
+    const response = await fetch("/scan", {
+        method:"POST",
+        body:formData
     });
 
-    riskCircle.style.background =
-        "conic-gradient("+(risk<60?"lime":risk<80?"orange":"red")+" "+risk+"%, #111 0%)";
+    const data = await response.json();
 
-    riskCircle.innerText = risk+"%";
-
-    let status="SAFE";
-    if(risk>=60){ status="HIGH RISK"; high++; }
-    else safe++;
-
-    riskText.innerText = status;
-
-    total++;
-
-    document.getElementById("totalScans").innerText = total;
-    document.getElementById("highRisk").innerText = high;
-    document.getElementById("safeFiles").innerText = safe;
-
-    saveHistory(file.name,risk,status);
-}
-
-function saveHistory(name,risk,status){
-    let history = JSON.parse(localStorage.getItem("history"))||[];
-    history.unshift({name,risk,status,time:new Date().toLocaleString()});
-    localStorage.setItem("history",JSON.stringify(history));
-    loadHistory();
-}
-
-function loadHistory(){
-    let history = JSON.parse(localStorage.getItem("history"))||[];
-    const container=document.getElementById("history");
-    container.innerHTML="";
-    history.forEach(h=>{
-        container.innerHTML+=`📂 ${h.name} | ${h.status} (${h.risk}%)<br>🕒 ${h.time}<hr>`;
-    });
-}
-loadHistory();
-
-/* Matrix Animation */
-const canvas=document.getElementById("matrix");
-const ctx=canvas.getContext("2d");
-canvas.height=window.innerHeight;
-canvas.width=window.innerWidth;
-
-const letters="01";
-const fontSize=14;
-const columns=canvas.width/fontSize;
-const drops=[];
-for(let x=0;x<columns;x++) drops[x]=1;
-
-function draw(){
-    ctx.fillStyle="rgba(0,0,0,0.05)";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle="#00ff99";
-    ctx.font=fontSize+"px monospace";
-
-    for(let i=0;i<drops.length;i++){
-        const text=letters[Math.floor(Math.random()*letters.length)];
-        ctx.fillText(text,i*fontSize,drops[i]*fontSize);
-        if(drops[i]*fontSize>canvas.height && Math.random()>0.975)
-            drops[i]=0;
-        drops[i]++;
+    if(data.malicious !== undefined){
+        document.getElementById("result").innerHTML = `
+        🔴 Malicious: ${data.malicious}<br>
+        🟡 Suspicious: ${data.suspicious}<br>
+        🟢 Harmless: ${data.harmless}<br>
+        ⚪ Undetected: ${data.undetected}
+        `;
+    } else {
+        document.getElementById("result").innerText = data.message || "Scan completed.";
     }
 }
-setInterval(draw,33);
 </script>
 
 </body>
