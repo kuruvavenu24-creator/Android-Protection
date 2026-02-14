@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>PDFShield VT</title>
+<title>PDFShield – Real Scanner</title>
 <style>
-body {
+body{
     background:black;
     color:#00ff99;
     font-family:monospace;
     text-align:center;
     padding:40px;
 }
-.box {
+.box{
     border:1px solid #00ff99;
     padding:20px;
     border-radius:10px;
 }
-button {
+button{
     padding:10px 20px;
     background:#00ff99;
     border:none;
     cursor:pointer;
 }
-.result {
+#result{
     margin-top:20px;
     font-size:18px;
 }
@@ -29,12 +29,12 @@ button {
 </head>
 <body>
 
-<h1>🛡 PDFShield + VirusTotal</h1>
+<h1>🛡 PDFShield – Live VirusTotal Scan</h1>
 
 <div class="box">
 <input type="file" id="fileInput" accept=".pdf"><br><br>
-<button onclick="scan()">Scan with VirusTotal</button>
-<div class="result" id="result"></div>
+<button onclick="scan()">Scan File</button>
+<div id="result"></div>
 </div>
 
 <script>
@@ -46,7 +46,7 @@ async function scan(){
     const formData = new FormData();
     formData.append("file", file);
 
-    document.getElementById("result").innerText="Scanning with VirusTotal...";
+    document.getElementById("result").innerText="Scanning... Please wait (15–20 sec)";
 
     const response = await fetch("/scan", {
         method:"POST",
@@ -63,7 +63,7 @@ async function scan(){
         ⚪ Undetected: ${data.undetected}
         `;
     } else {
-        document.getElementById("result").innerText = data.message || "Scan completed.";
+        document.getElementById("result").innerText = data.message || "Scan complete.";
     }
 }
 </script>

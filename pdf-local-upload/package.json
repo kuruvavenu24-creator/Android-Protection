@@ -1,9 +1,8 @@
 {
   "name": "pdfshield-vt",
   "version": "1.0.0",
-  "description": "PDFShield with VirusTotal Integration",
-  "main": "server.js",
   "type": "module",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },

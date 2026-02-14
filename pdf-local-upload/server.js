@@ -4,7 +4,6 @@ import fetch from "node-fetch";
 import dotenv from "dotenv";
 import fs from "fs";
 import crypto from "crypto";
-import path from "path";
 
 dotenv.config();
 
@@ -13,31 +12,62 @@ const upload = multer({ dest: "uploads/" });
 
 app.use(express.static("public"));
 
+async function getReport(hash) {
+    const response = await fetch(
+        `https://www.virustotal.com/api/v3/files/${hash}`,
+        {
+            headers: { "x-apikey": process.env.VT_API_KEY }
+        }
+    );
+
+    return await response.json();
+}
+
+async function uploadToVT(filePath) {
+
+    const fileBuffer = fs.readFileSync(filePath);
+
+    const response = await fetch(
+        "https://www.virustotal.com/api/v3/files",
+        {
+            method: "POST",
+            headers: {
+                "x-apikey": process.env.VT_API_KEY
+            },
+            body: fileBuffer
+        }
+    );
+
+    return await response.json();
+}
+
 app.post("/scan", upload.single("file"), async (req, res) => {
 
     try {
         const filePath = req.file.path;
 
-        // Create SHA256 hash
         const fileBuffer = fs.readFileSync(filePath);
         const hash = crypto.createHash("sha256").update(fileBuffer).digest("hex");
 
-        // Query VirusTotal
-        const response = await fetch(
-            `https://www.virustotal.com/api/v3/files/${hash}`,
-            {
-                headers: {
-                    "x-apikey": process.env.VT_API_KEY
-                }
-            }
-        );
+        let report = await getReport(hash);
 
-        const data = await response.json();
+        // If file not found in database
+        if (!report.data) {
 
-        fs.unlinkSync(filePath); // delete uploaded file
+            console.log("File not found. Uploading to VirusTotal...");
 
-        if (data.data) {
-            const stats = data.data.attributes.last_analysis_stats;
+            await uploadToVT(filePath);
+
+            // Wait for analysis (Free API needs delay)
+            await new Promise(resolve => setTimeout(resolve, 15000));
+
+            report = await getReport(hash);
+        }
+
+        fs.unlinkSync(filePath);
+
+        if (report.data) {
+            const stats = report.data.attributes.last_analysis_stats;
 
             res.json({
                 malicious: stats.malicious,
@@ -46,11 +76,12 @@ app.post("/scan", upload.single("file"), async (req, res) => {
                 undetected: stats.undetected
             });
         } else {
-            res.json({ message: "File not found in VirusTotal database." });
+            res.json({ message: "Scan submitted. Please check later." });
         }
 
-    } catch (error) {
-        res.status(500).json({ error: "Error scanning file." });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error during scan." });
     }
 });
 
