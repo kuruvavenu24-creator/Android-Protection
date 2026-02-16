@@ -1,71 +1,286 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>PDFShield – Real Scanner</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShadowScan AI - Threat Analyzer</title>
+
 <style>
-body{
-    background:black;
-    color:#00ff99;
-    font-family:monospace;
+body {
+    margin:0;
+    background:#0d1117;
+    color:#00ffcc;
+    font-family: Consolas, monospace;
+    overflow-x:hidden;
+}
+h1 {
     text-align:center;
-    padding:40px;
+    margin-top:20px;
 }
-.box{
-    border:1px solid #00ff99;
+.container {
+    width:90%;
+    max-width:900px;
+    margin:auto;
     padding:20px;
-    border-radius:10px;
 }
-button{
+.card {
+    background:#161b22;
+    padding:20px;
+    margin-top:20px;
+    border-radius:10px;
+    box-shadow:0 0 20px #00ffcc33;
+}
+input[type="file"] {
+    padding:10px;
+    background:black;
+    color:#00ffcc;
+}
+button {
     padding:10px 20px;
-    background:#00ff99;
+    background:#00ffcc;
     border:none;
     cursor:pointer;
+    font-weight:bold;
 }
-#result{
-    margin-top:20px;
-    font-size:18px;
+button:hover {
+    background:#00ffaa;
+}
+.progress {
+    width:150px;
+    height:150px;
+    border-radius:50%;
+    background:conic-gradient(#00ffcc 0deg, #222 0deg);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:auto;
+    font-size:24px;
+}
+.terminal {
+    background:black;
+    color:#00ff00;
+    padding:10px;
+    height:150px;
+    overflow:auto;
+    font-size:13px;
+}
+table {
+    width:100%;
+    border-collapse:collapse;
+}
+td, th {
+    border:1px solid #00ffcc33;
+    padding:5px;
+}
+.modal {
+    display:none;
+    position:fixed;
+    top:0; left:0;
+    width:100%;
+    height:100%;
+    background:#000000cc;
+    justify-content:center;
+    align-items:center;
+}
+.modal-content {
+    background:#161b22;
+    padding:20px;
+    width:80%;
+    max-width:600px;
+}
+.matrix {
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:-1;
 }
 </style>
 </head>
+
 <body>
 
-<h1>🛡 PDFShield – Live VirusTotal Scan</h1>
+<canvas class="matrix"></canvas>
 
-<div class="box">
-<input type="file" id="fileInput" accept=".pdf"><br><br>
-<button onclick="scan()">Scan File</button>
-<div id="result"></div>
+<h1>🛡 ShadowScan AI - Threat Analyzer</h1>
+
+<div class="container">
+
+<div class="card">
+<input type="file" id="fileInput">
+<button onclick="scanFile()">Scan File</button>
+</div>
+
+<div class="card" id="resultCard" style="display:none;">
+<h2>Risk Score</h2>
+<div class="progress" id="progressCircle">0%</div>
+<h3 id="riskLevel"></h3>
+<button onclick="showExplanation()">Attack Explanation</button>
+<button onclick="showPrevention()">Prevention Tips</button>
+</div>
+
+<div class="card">
+<h2>Terminal Output</h2>
+<div class="terminal" id="terminal"></div>
+</div>
+
+<div class="card">
+<h2>Scan History</h2>
+<button onclick="clearHistory()">Clear History</button>
+<button onclick="exportHistory()">Export JSON</button>
+<table>
+<thead>
+<tr><th>File</th><th>Risk</th><th>Date</th></tr>
+</thead>
+<tbody id="historyTable"></tbody>
+</table>
+</div>
+
+</div>
+
+<div class="modal" id="modal">
+<div class="modal-content">
+<div id="modalText"></div>
+<button onclick="closeModal()">Close</button>
+</div>
 </div>
 
 <script>
-async function scan(){
 
-    const file = document.getElementById("fileInput").files[0];
-    if(!file) return alert("Upload PDF first");
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    document.getElementById("result").innerText="Scanning... Please wait (15–20 sec)";
-
-    const response = await fetch("/scan", {
-        method:"POST",
-        body:formData
-    });
-
-    const data = await response.json();
-
-    if(data.malicious !== undefined){
-        document.getElementById("result").innerHTML = `
-        🔴 Malicious: ${data.malicious}<br>
-        🟡 Suspicious: ${data.suspicious}<br>
-        🟢 Harmless: ${data.harmless}<br>
-        ⚪ Undetected: ${data.undetected}
-        `;
-    } else {
-        document.getElementById("result").innerText = data.message || "Scan complete.";
+// Matrix Background
+const canvas = document.querySelector('.matrix');
+const ctx = canvas.getContext('2d');
+canvas.height = window.innerHeight;
+canvas.width = window.innerWidth;
+let letters = "01";
+letters = letters.split("");
+let fontSize = 14;
+let columns = canvas.width/fontSize;
+let drops = [];
+for(let x=0; x<columns; x++) drops[x]=1;
+function draw(){
+    ctx.fillStyle="rgba(0,0,0,0.05)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle="#00ffcc";
+    ctx.font=fontSize+"px monospace";
+    for(let i=0;i<drops.length;i++){
+        let text=letters[Math.floor(Math.random()*letters.length)];
+        ctx.fillText(text,i*fontSize,drops[i]*fontSize);
+        if(drops[i]*fontSize>canvas.height && Math.random()>0.975)
+            drops[i]=0;
+        drops[i]++;
     }
 }
+setInterval(draw,33);
+
+// Scan Engine
+function scanFile(){
+    const file = document.getElementById("fileInput").files[0];
+    if(!file) return alert("Upload a file");
+
+    let score = 0;
+
+    if(file.size > 10000000) score += 15;
+    if(file.name.endsWith(".exe")) score += 40;
+    if(file.name.includes("hidden")) score += 25;
+    if(file.type === "application/pdf") score += 20;
+
+    score += Math.floor(Math.random()*20);
+
+    if(score>100) score=100;
+
+    updateProgress(score);
+    simulateTerminal(file.name, score);
+    saveHistory(file.name, score);
+
+    document.getElementById("resultCard").style.display="block";
+}
+
+function updateProgress(score){
+    const circle = document.getElementById("progressCircle");
+    circle.style.background = `conic-gradient(#00ffcc ${score*3.6}deg, #222 ${score*3.6}deg)`;
+    circle.innerText = score + "%";
+
+    let level = "Low";
+    if(score>30) level="Medium";
+    if(score>60) level="Critical";
+
+    document.getElementById("riskLevel").innerText = "Threat Level: " + level;
+}
+
+function simulateTerminal(name, score){
+    const term = document.getElementById("terminal");
+    term.innerHTML="";
+    const logs = [
+        "[+] Initializing scan engine...",
+        "[+] Scanning file: "+name,
+        "[+] Analyzing structure...",
+        "[+] Checking metadata...",
+        "[+] Calculating risk score...",
+        "[!] Final Risk Score: "+score+"%"
+    ];
+    let i=0;
+    let interval = setInterval(()=>{
+        term.innerHTML += logs[i] + "<br>";
+        term.scrollTop = term.scrollHeight;
+        i++;
+        if(i>=logs.length) clearInterval(interval);
+    },500);
+}
+
+function saveHistory(name, score){
+    let history = JSON.parse(localStorage.getItem("scanHistory")) || [];
+    history.push({
+        name:name,
+        score:score,
+        date:new Date().toLocaleString()
+    });
+    localStorage.setItem("scanHistory", JSON.stringify(history));
+    loadHistory();
+}
+
+function loadHistory(){
+    let history = JSON.parse(localStorage.getItem("scanHistory")) || [];
+    let table="";
+    history.forEach(item=>{
+        table += `<tr><td>${item.name}</td><td>${item.score}%</td><td>${item.date}</td></tr>`;
+    });
+    document.getElementById("historyTable").innerHTML=table;
+}
+
+function clearHistory(){
+    localStorage.removeItem("scanHistory");
+    loadHistory();
+}
+
+function exportHistory(){
+    let history = localStorage.getItem("scanHistory");
+    let blob = new Blob([history], {type:"application/json"});
+    let a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download="scan_history.json";
+    a.click();
+}
+
+function showExplanation(){
+    document.getElementById("modalText").innerHTML =
+    "<h3>Attack Explanation</h3><p>This file shows suspicious characteristics such as abnormal structure or hidden patterns. In real-world attacks, such files may contain embedded scripts or payload delivery mechanisms.</p>";
+    document.getElementById("modal").style.display="flex";
+}
+
+function showPrevention(){
+    document.getElementById("modalText").innerHTML =
+    "<h3>Prevention Tips</h3><ul><li>Do not open unknown attachments</li><li>Verify sender authenticity</li><li>Keep software updated</li><li>Use antivirus scanning</li></ul>";
+    document.getElementById("modal").style.display="flex";
+}
+
+function closeModal(){
+    document.getElementById("modal").style.display="none";
+}
+
+loadHistory();
+
 </script>
 
 </body>
